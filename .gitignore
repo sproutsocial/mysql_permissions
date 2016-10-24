@@ -1,0 +1,12 @@
+syntax: glob
+*.pyc
+*.swo
+*.swp
+.vagrant
+.coverage
+.idea
+auto_grant.yaml
+build/*
+dist/*
+.hg/*
+ldap_mysql_granter.egg-info/*

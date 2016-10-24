@@ -1,0 +1,15 @@
+-- CREATE USER 'root'@'%' IDENTIFIED BY '';
+-- GRANT ALL PRIVILEGES ON *.* TO 'root'@'%';
+-- DROP USER 'int_test_user'@'%';
+-- DROP USER 'int_custom_user'@'%';
+-- DROP USER 'grant_bot'@'%';
+-- DROP USER 'revert_bot'@'%';
+CREATE USER 'grant_bot'@'%' IDENTIFIED BY 'hat';
+GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, RELOAD, ALTER, LOCK TABLES, CREATE USER ON *.* TO 'grant_bot'@'%' WITH GRANT OPTION;
+CREATE USER 'revert_bot'@'%' IDENTIFIED BY 'ill';
+GRANT ALL PRIVILEGES ON *.* TO 'revert_bot'@'%';
+FLUSH PRIVILEGES;
+CREATE DATABASE IF NOT EXISTS test_db;
+USE test_db;
+DROP TABLE IF EXISTS `test_table`;
+CREATE TABLE `test_table` (`id` INTEGER NOT NULL AUTO_INCREMENT,PRIMARY KEY (`id`));

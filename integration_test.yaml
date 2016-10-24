@@ -1,0 +1,41 @@
+# the server url and group_desc are REQUIRED
+# 192.168.33.10 is the ip address to the guest virtualbox machine
+ldap_server_url: ldap://192.168.33.10
+ldap_group_desc: ou=groups,dc=nodomain
+ldap_auth:
+    username_base: uid=int_test_user,ou=users,dc=nodomain
+    password: int_test_pass
+# in case you would like to use gmail for sending emails
+gmail_auth:
+    username: <%= ENV['AG_GMAIL_USER'] %>
+    password: <%= ENV['AG_GMAIL_PASS'] %>
+# This is a security feature if you are running your own hasteserver behind a VPN
+# https://github.com/seejohnrun/haste-server
+# hastebin_url: http://hastebin.com/
+mysql_auth:
+    grants:
+        username: grant_bot
+        password: hat
+    revert:
+        username: revert_bot
+        password: ill
+mysql_user_filter:
+    # regex to totally ignore all changes to these users
+    - 'grant_bot@%'
+    - 'revert_bot@%'
+    - 'debian-sys-maint@localhost'
+    - 'root@.*'
+user_to_email_map:
+    # map from user to email
+    int_test_user: <%= ENV['AG_GMAIL_USER'] %>
+# group permissions
+group_to_grants_map:
+    192.168.33.10:
+        # ldap group to expand per user
+        # This should generate:
+        #  GRANT SELECT ON *.* TO `int_test_user`@`%`
+        #  GRANT SELECT INSERT UPDATE DELETE ON test_db.test_table TO `int_test_user`@`%`
+        int_test_group:
+            '%':
+                '*.*': [SELECT, FOOEY]
+                'test_db.test_table': [select, INSERT, update, delete]

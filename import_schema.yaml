@@ -1,0 +1,15 @@
+mysql_users:
+    # Host
+    "dbhost1":
+        # Users to import
+        - "'adeveloper'@'%'"
+mysql_schemas:
+    # Host
+    - "dbhost1":
+      # SrcDB(remote): DstDB(local)
+      - bdb: bdb
+      - adb: adb
+    - "dbhost2":
+      - bdb : bdb
+    - "dbhost2":
+      - adb: bdb

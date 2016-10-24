@@ -1,0 +1,5 @@
+dn: cn=int_test_group,ou=groups,dc=nodomain
+objectClass: top
+objectClass: posixGroup
+gidNumber: 20000
+memberUid: int_test_user
