@@ -10,7 +10,6 @@ reqFile = path.join(here, "ldap_mysql_granter", "prod_requirements.txt")
 install_reqs = parse_requirements(reqFile, session=False)
 reqs = [str(ir.req) for ir in install_reqs]
 
-desc = 'a configurable ldap group to mysql cluster granter of privileges',
 epList = ['email_tool=ldap_mysql_granter.email_tool:main',
           'ldap_query_tool=ldap_mysql_granter.ldap_query_tool:main',
           'mysql_backup_tool=ldap_mysql_granter.mysql_backup_tool:main',
@@ -25,7 +24,9 @@ packageDataList = ['prod_requirements.txt',
 setup(
     name='ldap_mysql_granter',
     version=ldap_mysql_granter.__version__,
-    description=desc,
+    url = 'https://github.com/sproutsocial/mysql_permissions',
+    keywords = ['mysql', 'permissions', 'ldap'],
+    description='a configurable ldap group to mysql cluster granter of privileges',
     author='Nicholas Flink',
     author_email='nicholas@sproutsocial.com',
     packages=find_packages(),
