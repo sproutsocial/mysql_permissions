@@ -35,6 +35,7 @@ class MysqlQueryTool(object):
         self._queryAccessLevel = queryAccessLevel
         self._database = database
         self._connection = None
+        self._version = None
         self.connect()
 
     def connect(self):
@@ -110,6 +111,13 @@ class MysqlQueryTool(object):
                     raise e
 
         return result
+
+    def getVersion(self):
+        if(self._version is None):
+            versionDict = self.queryVersion()
+            versionResult = re.match("[0-9]*\.[0-9]*", versionDict[0]['VERSION()'])
+            self._version = float(versionResult.group(0))
+        return self._version
 
     def queryVersion(self):
         qArgs = None
@@ -190,12 +198,15 @@ class MysqlQueryTool(object):
         return userExists
 
     def getPasswordHash(self, userPart, hostPart):
-        query = "SELECT Password FROM mysql.user WHERE User = %s AND Host = %s"
-        qArgs = (userPart, hostPart)
+        fieldName = "authentication_string"
+        if self.getVersion() > 5.6:
+            fieldName = "Password"
+        query = "SELECT %s FROM mysql.user WHERE User = %s AND Host = %s"
+        qArgs = (fieldName, userPart, hostPart)
         result = self.queryMySQL(QAL_READ, query, qArgs)
         passwordHash = None
         if result is not None and len(result) == 1:
-            passwordHash = result[0]['Password']
+            passwordHash = result[0][fieldName]
         return passwordHash
 
     def createUser(self, newUserAtHost, newPassword, useHash=False):

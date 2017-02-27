@@ -90,6 +90,7 @@ class TestMysqlGrantsGenerator(unittest.TestCase):
         self._unmockedQueryToolCommitTrans = mysql_grants_generator.mysql_query_tool.MysqlQueryTool.commitTransaction
         self._unmockedQueryToolCloseConn = mysql_grants_generator.mysql_query_tool.MysqlQueryTool.closeConnection
         self._unmockedQueryToolCreateUser = mysql_grants_generator.mysql_query_tool.MysqlQueryTool.createUser
+        self._unmockedQueryToolGetVersion = mysql_grants_generator.mysql_query_tool.MysqlQueryTool.getVersion
         self._unmockedBackupToolDump = mysql_grants_generator.mysql_backup_tool.MysqlBackupTool.performMySQLDumpList
         self._unmockedEmailToolSendMail = mysql_grants_generator.email_tool.EmailTool.sendMail
         self._unmockedEmailToolSendInvite = mysql_grants_generator.email_tool.EmailTool.sendChangePasswordInvite
@@ -101,6 +102,7 @@ class TestMysqlGrantsGenerator(unittest.TestCase):
         mysql_grants_generator.mysql_query_tool.MysqlQueryTool.commitTransaction = mock.MagicMock(return_value=None)
         mysql_grants_generator.mysql_query_tool.MysqlQueryTool.closeConnection = mock.MagicMock(return_value=None)
         mysql_grants_generator.mysql_query_tool.MysqlQueryTool.createUser = mock.MagicMock(return_value=None)
+        mysql_grants_generator.mysql_query_tool.MysqlQueryTool.getVersion = mock.MagicMock(return_value=5.5)
         mysql_grants_generator.mysql_backup_tool.MysqlBackupTool.performMySQLDumpList = mock.MagicMock(return_value=None)
         mysql_grants_generator.email_tool.EmailTool.sendMail = mock.MagicMock(return_value=None)
         mysql_grants_generator.email_tool.EmailTool.sendChangePasswordInvite = mock.MagicMock(return_value=None)
@@ -114,6 +116,7 @@ class TestMysqlGrantsGenerator(unittest.TestCase):
         mysql_grants_generator.mysql_query_tool.MysqlQueryTool.commitTransaction = self._unmockedQueryToolCommitTrans
         mysql_grants_generator.mysql_query_tool.MysqlQueryTool.closeConnection = self._unmockedQueryToolCloseConn
         mysql_grants_generator.mysql_query_tool.MysqlQueryTool.createUser = self._unmockedQueryToolCreateUser
+        mysql_grants_generator.mysql_query_tool.MysqlQueryTool.getVersion = self._unmockedQueryToolGetVersion
         mysql_grants_generator.mysql_backup_tool.MysqlBackupTool.performMySQLDumpList = self._unmockedBackupToolDump
         mysql_grants_generator.email_tool.EmailTool.sendMail = self._unmockedEmailToolSendMail
         mysql_grants_generator.email_tool.EmailTool.sendChangePasswordInvite = self._unmockedEmailToolSendInvite
