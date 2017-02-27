@@ -129,7 +129,7 @@ bumpversion --tag --commit {patch,minor,major} ldap_mysql_granter/__init__.py
 ```
 LATEST_TAG=`git describe --tags $(git rev-list --tags --max-count=1)`
 LATEST_TAG_REV=`git rev-list --tags --max-count=1`
-echo "-e git://github.com/mozilla/elasticutils.git@${LATEST_TAG}#egg=ldap_mysql_granter=${LATEST_TAG_REV}" >> your_other_project/requirements.txt
+echo "-e git://github.com/sproutsocial/mysql_permissions.git@${LATEST_TAG}#egg=ldap_mysql_granter=${LATEST_TAG_REV}" >> your_other_project/requirements.txt
 ```
 
 ### Script entry points ###
