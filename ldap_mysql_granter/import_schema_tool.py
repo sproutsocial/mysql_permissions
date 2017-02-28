@@ -129,7 +129,7 @@ def main(args=None):
     parser.add_argument('-e', '--echo-only', action='store_true',
                         help="just print out the queries to run")
     parser.add_argument('--log-passwords', action='store_true', default=False, required=False,
-                        help="just print out the queries to run")
+                        help="useful if you want to pipe the output to mysql tool")
     parser.add_argument('-y', '--yaml-conf', type=str, default=None,
                         help="the yaml configuration path")
     parsedArgs = parser.parse_args(args)
