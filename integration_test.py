@@ -11,6 +11,7 @@ import logging
 import pprint
 import os
 logger = logging.getLogger(__name__)
+LOG_PASSWORDS = True
 
 
 def checkDbClean(cluster, mysqlUser, mysqlPass, userPart, hostPart,
@@ -22,7 +23,8 @@ def checkDbClean(cluster, mysqlUser, mysqlPass, userPart, hostPart,
     queryAccessLevel = echoAccessLevel
     queryTool = mysql_query_tool.MysqlQueryTool(cluster, mysqlUser, mysqlPass,
                                                 echoAccessLevel,
-                                                queryAccessLevel)
+                                                queryAccessLevel,
+                                                LOG_PASSWORDS)
     userExists = queryTool.userExists(userPart, hostPart)
     # verify db is clean
     assert (userExists is False), "db not clean run a vagrant destroy"
@@ -37,7 +39,8 @@ def checkUserHasGrants(cluster, mysqlUser, mysqlPass, userPart, hostPart,
     queryAccessLevel = echoAccessLevel
     queryTool = mysql_query_tool.MysqlQueryTool(cluster, mysqlUser, mysqlPass,
                                                 echoAccessLevel,
-                                                queryAccessLevel)
+                                                queryAccessLevel,
+                                                LOG_PASSWORDS)
     # create user and verify user exists
     userExists = queryTool.userExists(userPart, hostPart)
     assert (userExists is True), "user was NOT added"

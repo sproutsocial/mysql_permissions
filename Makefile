@@ -10,13 +10,13 @@ vagrant :
 
 integration_test_echo_only : vagrant
 	python integration_test.py --log-level=CRITICAL --test=IS_CLEAN
-	python ldap_mysql_granter/mysql_grants_generator.py --log-level=CRITICAL --yaml-conf=./integration_test.yaml --echo-only 
+	python ldap_mysql_granter/mysql_grants_generator.py --log-level=CRITICAL --yaml-conf=./integration_test.yaml --echo-only
 	python integration_test.py --log-level=CRITICAL --test=IS_CLEAN
 	python ldap_mysql_granter/mysql_grants_generator.py --log-level=CRITICAL --yaml-conf=./integration_test.yaml --revert --echo-only 
 	python integration_test.py --log-level=CRITICAL --test=IS_CLEAN
-	python ldap_mysql_granter/mysql_grants_generator.py --log-level=CRITICAL --yaml-conf=./integration_test.yaml --echo-only | bash -x
+	python ldap_mysql_granter/mysql_grants_generator.py --log-level=CRITICAL --yaml-conf=./integration_test.yaml --echo-only --log-password | bash -x
 	python integration_test.py --log-level=CRITICAL --test=HAS_GRANTS
-	python ldap_mysql_granter/mysql_grants_generator.py --log-level=CRITICAL --yaml-conf=./integration_test.yaml --revert --echo-only | bash -x
+	python ldap_mysql_granter/mysql_grants_generator.py --log-level=CRITICAL --yaml-conf=./integration_test.yaml --revert --echo-only --log-password | bash -x
 	python integration_test.py --log-level=CRITICAL --test=IS_CLEAN
 
 integration_test_non_interactive: vagrant

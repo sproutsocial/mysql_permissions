@@ -5,6 +5,7 @@ mysql_grants_generator is a program to automate the generation of mysql grants
  copyright:  2015, (c) sproutsocial.com
  author:   Nicholas Flink <nicholas@sproutsocial.com>
 """
+
 import argparse
 import datetime
 import logging
@@ -28,9 +29,10 @@ class MysqlRestoreException(Exception):
 
 class MysqlBackupTool(object):
 
-    def __init__(self, echoOnly, backupPath=DEFAULT_BACKUP_DIR):
+    def __init__(self, echoOnly, logPasswords, backupPath=DEFAULT_BACKUP_DIR):
         self._echoOnly = echoOnly
         self._backupPath = backupPath
+        self._logPasswords = logPasswords
 
     def getBackupSQLFile(self, backupName, cluster, database, table=None):
         backupPath = os.path.join(self._backupPath, backupName, cluster)
@@ -38,6 +40,22 @@ class MysqlBackupTool(object):
         if table is not None:
             archive = os.path.join(backupPath, database + "." + table + ".sql")
         return archive
+
+    def getDumpCmd(self, extraArgs, host, username, password, dbTable, dumpFile, realPassword):
+        passwordStr = "--password=REDACTED"
+        if realPassword:
+            passwordStr = ("--password=%s" % password)
+        dumpCmd = ("mysqldump%s--host=%s --user=%s %s %s > %s"
+                   % (extraArgs, host, username, passwordStr, dbTable, dumpFile))
+        return dumpCmd
+
+    def getRestoreCmd(self, host, username, password, database, dumpFile, realPassword):
+        passwordStr = "--password=REDACTED"
+        if realPassword:
+            passwordStr = ("--password=%s" % password)
+        restoreCmd = ("mysql --host=%s --user=%s %s %s < %s"
+                      % (host, username, passwordStr, database, dumpFile))
+        return restoreCmd
 
     def performMySQLDump(self, host, username, password, dbTable, dumpFile, extraArgList=[]):
         backupPath = os.path.dirname(dumpFile)
@@ -47,28 +65,28 @@ class MysqlBackupTool(object):
         extraArgs = ' '
         if 0 < len(extraArgList):
             extraArgs += " ".join(extraArgList) + ' '
-        dumpCmd = ("mysqldump%s--host=%s --user=%s --password=%s %s > %s"
-                   % (extraArgs, host, username, password, dbTable, dumpFile))
+        dumpCmd = self.getDumpCmd(extraArgs, host, username, password, dbTable, dumpFile, True)
+        dumpEcho = self.getDumpCmd(extraArgs, host, username, password, dbTable, dumpFile, self._logPasswords)
         if self._echoOnly is True:
             print(dumpCmd)
         else:
-            logger.info("running dump: %s", dumpCmd)
+            logger.info("running dump: %s", dumpEcho)
             if subprocess.call(dumpCmd, shell=True) != 0:
-                raise MysqlDumpException("could not perform %s" % dumpCmd)
+                raise MysqlDumpException("could not perform %s" % dumpEcho)
 
     def restoreFromMySQLDump(self, host, username, password, database, dumpFile):
         """http://serverfault.com/questions/172950/
         backup-mysql-users-and-permissions"""
         if self._echoOnly is True or os.path.exists(dumpFile):
-            restoreCmd = ("mysql --host=%s --user=%s --password=%s %s < %s"
-                          % (host, username, password, database, dumpFile))
+            restoreCmd = self.getRestoreCmd(host, username, password, database, dumpFile, True)
+            restoreEcho = self.getRestoreCmd(host, username, password, database, dumpFile, self._logPasswords)
             if self._echoOnly is True:
-                print(restoreCmd)
+                print(restoreEcho)
             else:
-                logger.info("running restore: %s", restoreCmd)
+                logger.info("running restore: %s", restoreEcho)
                 if subprocess.call(restoreCmd, shell=True) != 0:
                     raise MysqlRestoreException(
-                        "could not perform %s" % (restoreCmd))
+                        "could not perform %s" % (restoreEcho))
         else:
             logger.error("cant restore from: %s no file exists", dumpFile)
 

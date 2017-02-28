@@ -260,10 +260,11 @@ class TestMysqlGrantsGenerator(unittest.TestCase):
                                    set(['INSERT', 'UPDATE', 'SELECT',
                                         'DELETE']), '*.*')]
         echoOnly = False
+        logPasswords = True
         destructive = False
         passwordReset = False
         mysql_grants_generator.grantAccess(self.autoGrantConfig, grantDict,
-                                           echoOnly, destructive, passwordReset)
+                                           echoOnly, logPasswords, destructive, passwordReset)
         mysql_grants_generator.mysql_query_tool.MysqlQueryTool.queryGrant.assert_has_calls(expectedCalls)
 
     def test_updateMysqlUser(self):

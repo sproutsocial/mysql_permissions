@@ -13,6 +13,7 @@ import pprint
 import re
 import sys
 
+
 logger = logging.getLogger(__name__)
 
 # Query Access Levels
@@ -22,17 +23,20 @@ QAL_READ_WRITE = 2
 QAL_READ_WRITE_DELETE = 3
 QAL_ALL = 4
 HIDE_PASS = True
+OLD_PASS_COLUMN = "Password"
+NEW_PASS_COLUMN = "authentication_string"
 
 
 class MysqlQueryTool(object):
 
     def __init__(self, cluster, mysqlUser, mysqlPass, echoAccessLevel,
-                 queryAccessLevel, database=''):
+                 queryAccessLevel, logPasswords, database=''):
         self._cluster = cluster
         self._mysqlUser = mysqlUser
         self._mysqlPass = mysqlPass
         self._echoAccessLevel = echoAccessLevel
         self._queryAccessLevel = queryAccessLevel
+        self._logPasswords = logPasswords
         self._database = database
         self._connection = None
         self._version = None
@@ -58,7 +62,10 @@ class MysqlQueryTool(object):
         if self._mysqlUser is not None and 0 < len(self._mysqlUser):
             usernameArg = " -u %s" % self._mysqlUser
         if self._mysqlPass is not None and 0 < len(self._mysqlPass):
-            passwordArg = " -p%s" % self._mysqlPass
+            if self._logPasswords:
+                passwordArg = " -p%s" % self._mysqlPass
+            else:
+                passwordArg = " -pREDACTED"
         if self._database is not None and 0 < len(self._database):
             databaseArg = " %s" % self._database
         sql = query
@@ -198,15 +205,18 @@ class MysqlQueryTool(object):
         return userExists
 
     def getPasswordHash(self, userPart, hostPart):
-        fieldName = "authentication_string"
-        if self.getVersion() > 5.6:
-            fieldName = "Password"
-        query = "SELECT %s FROM mysql.user WHERE User = %s AND Host = %s"
-        qArgs = (fieldName, userPart, hostPart)
+        fieldName = NEW_PASS_COLUMN
+        version = self.getVersion()
+        if version <= 5.6:
+            fieldName = OLD_PASS_COLUMN
+        query = "SELECT " + fieldName + " FROM mysql.user WHERE User = %s AND Host = %s"
+        qArgs = (userPart, hostPart)
         result = self.queryMySQL(QAL_READ, query, qArgs)
         passwordHash = None
         if result is not None and len(result) == 1:
             passwordHash = result[0][fieldName]
+        if passwordHash in [OLD_PASS_COLUMN, NEW_PASS_COLUMN]:
+            passwordHash = None
         return passwordHash
 
     def createUser(self, newUserAtHost, newPassword, useHash=False):

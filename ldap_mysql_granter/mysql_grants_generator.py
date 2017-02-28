@@ -145,14 +145,14 @@ def makeGrantDict(autoGrantConfig, userDict, clusterList=None):
     return grantDict
 
 
-def grantAccess(autoGrantConfig, grantDict, echoOnly, destructive, passwordReset):
+def grantAccess(autoGrantConfig, grantDict, echoOnly, logPasswords, destructive, passwordReset):
     """ This is the function that grants revokes and drops users
         Before adding any additional logica we should consider splitting
         this function to avoid it getting too unweildy
         NOTE: if destructive is False Revokes and Drop Users will be omitted
     """
     newUserDict = {}
-    mysqlBackupTool = mysql_backup_tool.MysqlBackupTool(echoOnly)
+    mysqlBackupTool = mysql_backup_tool.MysqlBackupTool(echoOnly, logPasswords)
     backupName = mysqlBackupTool.getCurrentTimeBackup()
     grantUser = autoGrantConfig.getMysqlGrantsUsername()
     grantPass = autoGrantConfig.getMysqlGrantsPassword()
@@ -169,7 +169,7 @@ def grantAccess(autoGrantConfig, grantDict, echoOnly, destructive, passwordReset
         logger.debug("backup saved")
         mysqlConn = mysql_query_tool.MysqlQueryTool(cluster, grantUser,
                                                     grantPass, echoAccessLevel,
-                                                    queryAccessLevel)
+                                                    queryAccessLevel, logPasswords)
         logger.debug("connection created")
         for userAtHost in grantDict[cluster].keys():
             logger.debug("working on %s", userAtHost)
@@ -280,11 +280,12 @@ def generateRandomPassword():
     return randomPassword
 
 
-def start(autoGrantConfig, echoOnly, destructive, passwordReset, revert, userList, groupList,
+def start(autoGrantConfig, echoOnly, logPasswords, destructive, passwordReset, revert, userList, groupList,
           clusterList):
     restoreName = ''
     restorePath = ''
-    mysqlBackupTool = mysql_backup_tool.MysqlBackupTool(echoOnly)
+    mysqlBackupTool = mysql_backup_tool.MysqlBackupTool(echoOnly, logPasswords)
+
     pruneBeforeDate = mysqlBackupTool.getPruneBeforeFromTimeDelta(
         datetime.timedelta(days=30))
     mysqlBackupTool.pruneBefore(pruneBeforeDate)
@@ -301,7 +302,7 @@ def start(autoGrantConfig, echoOnly, destructive, passwordReset, revert, userLis
         if os.path.isdir(restorePath):
             revertUser = autoGrantConfig.getMysqlRevertUsername()
             revertPass = autoGrantConfig.getMysqlRevertPassword()
-            mysqlBackupTool = mysql_backup_tool.MysqlBackupTool(echoOnly)
+            mysqlBackupTool = mysql_backup_tool.MysqlBackupTool(echoOnly, logPasswords)
             for cluster in autoGrantConfig.getDbClusters():
                 logger.info("reverting %s", cluster)
                 echoAccessLevel = mysql_query_tool.QAL_ALL
@@ -311,7 +312,8 @@ def start(autoGrantConfig, echoOnly, destructive, passwordReset, revert, userLis
                 mysqlConn = mysql_query_tool.MysqlQueryTool(cluster, revertUser,
                                                             revertPass,
                                                             echoAccessLevel,
-                                                            queryAccessLevel)
+                                                            queryAccessLevel,
+                                                            logPasswords)
                 mysqlBackupTool.restoreFromMySQLDumpList(cluster, revertUser,
                                                          revertPass, restoreName,
                                                          [("mysql", "user")])
@@ -346,7 +348,7 @@ def start(autoGrantConfig, echoOnly, destructive, passwordReset, revert, userLis
         logger.debug("userDict:\n"+pprint.pformat(userDict))
         grantDict = makeGrantDict(autoGrantConfig, userDict, clusterList)
         logger.debug("grantDict:\n"+pprint.pformat(grantDict))
-        grantAccess(autoGrantConfig, grantDict, echoOnly, destructive, passwordReset)
+        grantAccess(autoGrantConfig, grantDict, echoOnly, logPasswords, destructive, passwordReset)
 
 
 def init_config(nonInteractive):
@@ -409,6 +411,9 @@ def main(args=None):
     parser.add_argument('--password-reset', action='store_true',
                         required=False, default=False,
                         help="drop and re-add the user to reset password")
+    parser.add_argument('--log-passwords', action='store_true',
+                        required=False, default=False,
+                        help="useful if you want to pipe the -l CRITICAL output to mysql tool")
     reqGrp.add_argument('-y', '--yaml-conf', type=str, required=False,
                         default=os.path.join(os.getcwd(), 'auto_grant.yaml'),
                         help="the yaml configuration path")
@@ -433,7 +438,7 @@ def main(args=None):
             init_config(parsedArgs.non_interactive)
         else:
             autoGrantConfig = auto_grant_config.AutoGrantConfig(parsedArgs.yaml_conf)
-            start(autoGrantConfig, True, parsedArgs.destructive, parsedArgs.password_reset, parsedArgs.revert,
+            start(autoGrantConfig, True, parsedArgs.log_passwords, parsedArgs.destructive, parsedArgs.password_reset, parsedArgs.revert,
                   parsedArgs.user_list, parsedArgs.group_list, parsedArgs.cluster_list)
             if(parsedArgs.echo_only is False):
                 userInput = "No"
@@ -446,7 +451,7 @@ def main(args=None):
                                                  "Type %s to continue %s to skip" %
                                                  ("[Yes]", "[Enter]"))
                 if userInput == "Yes":
-                    start(autoGrantConfig, parsedArgs.echo_only, parsedArgs.destructive, parsedArgs.password_reset,
+                    start(autoGrantConfig, parsedArgs.echo_only, parsedArgs.log_passwords, parsedArgs.destructive, parsedArgs.password_reset,
                           parsedArgs.revert, parsedArgs.user_list, parsedArgs.group_list,
                           parsedArgs.cluster_list)
                 else:
