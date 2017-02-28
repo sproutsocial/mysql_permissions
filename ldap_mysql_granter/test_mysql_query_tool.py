@@ -72,11 +72,12 @@ class TestMysqlQueryTool(unittest.TestCase):
         self._password = "password"
         self._fakeConnection = FakeMysqlConnection()
         self._fakeCursor = FakeMysqlCursor()
+        self._logPasswords = True
         echoAccessLevel = mysql_query_tool.QAL_ALL
         queryAccessLevel = mysql_query_tool.QAL_ALL
         mysql_query_tool.MySQLdb.connect = mock.MagicMock(
             return_value=self._fakeConnection)
-        self._mysqlQueryTool = mysql_query_tool.MysqlQueryTool(self._cluster, self._username, self._password, echoAccessLevel, queryAccessLevel)
+        self._mysqlQueryTool = mysql_query_tool.MysqlQueryTool(self._cluster, self._username, self._password, echoAccessLevel, queryAccessLevel, self._logPasswords)
         self._mysqlQueryTool.getCursor = mock.MagicMock(
             return_value=self._fakeCursor)
 
@@ -171,14 +172,18 @@ class TestMysqlQueryToolMain(unittest.TestCase):
     def setUp(self):
         self._backupPath = "./testMysqlBackup"
         self._echoOnly = True
+        self._unmockedGetVersion = mysql_query_tool.MysqlQueryTool.getVersion
         self._unmockedConnect = mysql_query_tool.MysqlQueryTool.connect
         self._unmockedQueryMySQL = mysql_query_tool.MysqlQueryTool.queryMySQL
+        mysql_query_tool.MysqlQueryTool.getVersion = mock.MagicMock(
+            return_value=5.5)
         mysql_query_tool.MysqlQueryTool.connect = mock.MagicMock(
             return_value=None)
         mysql_query_tool.MysqlQueryTool.queryMySQL = mock.MagicMock(
             return_value=None)
 
     def tearDown(self):
+        mysql_query_tool.MysqlQueryTool.getVersion = self._unmockedGetVersion
         mysql_query_tool.MysqlQueryTool.connect = self._unmockedQueryMySQL
         mysql_query_tool.MysqlQueryTool.queryMySQL = self._unmockedQueryMySQL
 

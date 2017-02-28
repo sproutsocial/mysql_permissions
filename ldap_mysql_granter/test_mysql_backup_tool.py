@@ -34,11 +34,12 @@ def captured_output():
 class TestMysqlBackupTool(unittest.TestCase):
     def setUp(self):
         echoOnly = True
+        logPasswords = True
         self._cluster = "cluster"
         self._username = "username"
         self._password = "password"
         self._fakeBackupPath = "./testMysqlBackup"
-        self._mysqlBackupTool = mysql_backup_tool.MysqlBackupTool(echoOnly, self._fakeBackupPath)
+        self._mysqlBackupTool = mysql_backup_tool.MysqlBackupTool(echoOnly, logPasswords, self._fakeBackupPath)
         self._backupName = self._mysqlBackupTool.getCurrentTimeBackup()
         self._backupPath = os.path.join(self._fakeBackupPath, self._backupName, self._cluster)
         if not os.path.exists(self._backupPath):

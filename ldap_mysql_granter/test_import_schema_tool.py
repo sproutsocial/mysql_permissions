@@ -41,11 +41,12 @@ class TestImportSchema(unittest.TestCase):
            NOTE: the overrideYamlDictForTests should only be called from tests
         """
         self.echoOnly = True
+        self.logPasswords = True
         self.username = "localUsername"
         self.password = "localPassword"
         self.backupPath = "backuppath"
         self.yamlConf = "path/to/conf.yaml"
-        self.mockedSchemaImportTool = import_schema_tool.SchemaImportTool(self.echoOnly, self.backupPath, self.username, self.password)
+        self.mockedSchemaImportTool = import_schema_tool.SchemaImportTool(self.echoOnly, self.logPasswords, self.backupPath, self.username, self.password)
         # Save SchemaImportTool unmocked
         self._unmockedSchemaImportToolImportUsers = self.mockedSchemaImportTool.importUsers
         self._unmockedSchemaImportToolImportSchema = self.mockedSchemaImportTool.importSchema
@@ -83,7 +84,7 @@ class TestImportSchema(unittest.TestCase):
         importSchemaConfig = import_schema_config.ImportSchemaConfig()
         importSchemaConfig.overrideYamlDictForTests(yamlConf)
         # unmock
-        schemaImportTool = import_schema_tool.SchemaImportTool(self.echoOnly, self.backupPath, self.username, self.password)
+        schemaImportTool = import_schema_tool.SchemaImportTool(self.echoOnly, self.logPasswords, self.backupPath, self.username, self.password)
         schemaImportTool.remoteMysqlUser = "remoteMysqlUser"
         schemaImportTool.remoteMysqlPass = "remoteMysqlPass"
         with captured_output() as (out, err):
@@ -165,7 +166,7 @@ class TestSchemaImportMain(unittest.TestCase):
         pass
 
     def test_main(self):
-        import_schema_tool.main(["-u", self._username, "-p", self._password, "-b", self._backupPath, "-e", "-y", self._yamlConf])
+        import_schema_tool.main(["-u", self._username, "-p", self._password, "-b", self._backupPath, "-e", "--log-passwords", "-y", self._yamlConf])
         startCall = [mock.call(self._yamlConf)]
         import_schema_tool.SchemaImportTool.start.assert_has_calls(startCall)
 

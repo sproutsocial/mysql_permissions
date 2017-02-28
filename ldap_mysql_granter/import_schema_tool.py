@@ -22,14 +22,15 @@ BACKUP_DIR_FMT = '%Y%m%d-%H%M%S'
 
 class SchemaImportTool(object):
 
-    def __init__(self, echoOnly, backupPath, localMysqlUser, localMysqlPass):
+    def __init__(self, echoOnly, logPasswords, backupPath, localMysqlUser, localMysqlPass):
         self.backupPath = backupPath
         self.echoOnly = echoOnly
+        self.logPasswords = logPasswords
         self.localMysqlCluster = "localhost"
         self.localMysqlUser = localMysqlUser
         self.localMysqlPass = localMysqlPass
         self.myDotCnf = my_dot_cnf.MyDotCnf()
-        self.mysqlBackupTool = mysql_backup_tool.MysqlBackupTool(self.echoOnly, self.backupPath)
+        self.mysqlBackupTool = mysql_backup_tool.MysqlBackupTool(self.echoOnly, self.logPasswords, self.backupPath)
 
     def importUsers(self, importSchemaConfig):
         mysqlUsersToImport = importSchemaConfig.getMysqlUsers()
@@ -40,6 +41,7 @@ class SchemaImportTool(object):
                                                          self.localMysqlPass,
                                                          mysql_query_tool.QAL_ALL,
                                                          mysql_query_tool.QAL_READ if self.echoOnly else mysql_query_tool.QAL_ALL,
+                                                         self.logPasswords,
                                                          "mysql")
             for cluster in mysqlUsersToImport.keys():
                 remoteMysql = mysql_query_tool.MysqlQueryTool(cluster,
@@ -47,6 +49,7 @@ class SchemaImportTool(object):
                                                               self.remoteMysqlPass,
                                                               mysql_query_tool.QAL_ALL,
                                                               mysql_query_tool.QAL_READ if self.echoOnly else mysql_query_tool.QAL_ALL,
+                                                              self.logPasswords,
                                                               "mysql")
                 for userAtHost in mysqlUsersToImport[cluster]:
                     useHash = True
@@ -71,6 +74,7 @@ class SchemaImportTool(object):
                                                      self.localMysqlPass,
                                                      mysql_query_tool.QAL_ALL,
                                                      mysql_query_tool.QAL_READ if self.echoOnly else mysql_query_tool.QAL_ALL,
+                                                     self.logPasswords,
                                                      "mysql")
         for entry in mysqlSchemasToImport:
             cluster = entry.keys()[0]
@@ -124,6 +128,8 @@ def main(args=None):
                         help="the mysql query to execute")
     parser.add_argument('-e', '--echo-only', action='store_true',
                         help="just print out the queries to run")
+    parser.add_argument('--log-passwords', action='store_true', default=False, required=False,
+                        help="useful if you want to pipe the output to mysql tool")
     parser.add_argument('-y', '--yaml-conf', type=str, default=None,
                         help="the yaml configuration path")
     parsedArgs = parser.parse_args(args)
@@ -136,7 +142,7 @@ def main(args=None):
         logger.warn("Unknown logLevel=%s retaining level at INFO",
                     parsedArgs.log_level)
     logger.info(pprint.pformat(parsedArgs))
-    schemaImportTool = SchemaImportTool(parsedArgs.echo_only, parsedArgs.backup_path, parsedArgs.username, parsedArgs.password)
+    schemaImportTool = SchemaImportTool(parsedArgs.echo_only, parsedArgs.log_passwords, parsedArgs.backup_path, parsedArgs.username, parsedArgs.password)
     schemaImportTool.start(parsedArgs.yaml_conf)
     logger.info("Done!")
     return retCode
