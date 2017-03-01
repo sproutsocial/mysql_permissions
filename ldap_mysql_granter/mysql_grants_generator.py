@@ -29,6 +29,8 @@ TEMPLATE_ACCESS = 'access'
 TEMPLATE_INVITE = 'invite'
 RET_MUTEX_ARGS = 10
 
+_mysqlBackupTool = None
+
 
 class GrantException(Exception):
     """
@@ -36,6 +38,15 @@ class GrantException(Exception):
     """
     def __init__(self, message):
         super(GrantException, self).__init__(message)
+
+
+def _getMysqlBackupTool(echoOnly, logPasswords):
+    global _mysqlBackupTool
+    if _mysqlBackupTool is None:
+        _mysqlBackupTool = mysql_backup_tool.MysqlBackupTool(echoOnly, logPasswords)
+    _mysqlBackupTool.setEchoOnly(echoOnly)
+    _mysqlBackupTool.setLogPasswords(logPasswords)
+    return _mysqlBackupTool
 
 
 def makeGroupDict(autoGrantConfig, ldapGroupDict):
@@ -152,7 +163,7 @@ def grantAccess(autoGrantConfig, grantDict, echoOnly, logPasswords, destructive,
         NOTE: if destructive is False Revokes and Drop Users will be omitted
     """
     newUserDict = {}
-    mysqlBackupTool = mysql_backup_tool.MysqlBackupTool(echoOnly, logPasswords)
+    mysqlBackupTool = _getMysqlBackupTool(echoOnly, logPasswords)
     backupName = mysqlBackupTool.getCurrentTimeBackup()
     grantUser = autoGrantConfig.getMysqlGrantsUsername()
     grantPass = autoGrantConfig.getMysqlGrantsPassword()
@@ -284,7 +295,7 @@ def start(autoGrantConfig, echoOnly, logPasswords, destructive, passwordReset, r
           clusterList):
     restoreName = ''
     restorePath = ''
-    mysqlBackupTool = mysql_backup_tool.MysqlBackupTool(echoOnly, logPasswords)
+    mysqlBackupTool = _getMysqlBackupTool(echoOnly, logPasswords)
 
     pruneBeforeDate = mysqlBackupTool.getPruneBeforeFromTimeDelta(
         datetime.timedelta(days=30))
@@ -302,7 +313,7 @@ def start(autoGrantConfig, echoOnly, logPasswords, destructive, passwordReset, r
         if os.path.isdir(restorePath):
             revertUser = autoGrantConfig.getMysqlRevertUsername()
             revertPass = autoGrantConfig.getMysqlRevertPassword()
-            mysqlBackupTool = mysql_backup_tool.MysqlBackupTool(echoOnly, logPasswords)
+            mysqlBackupTool = _getMysqlBackupTool(echoOnly, logPasswords)
             for cluster in autoGrantConfig.getDbClusters():
                 logger.info("reverting %s", cluster)
                 echoAccessLevel = mysql_query_tool.QAL_ALL
