@@ -33,6 +33,7 @@ class MysqlBackupTool(object):
         self._echoOnly = echoOnly
         self._backupPath = backupPath
         self._logPasswords = logPasswords
+        self._backupTime = None
 
     def setEchoOnly(self, echoOnly):
         self._echoOnly = echoOnly
@@ -139,8 +140,9 @@ class MysqlBackupTool(object):
         return lastBackupDir
 
     def getCurrentTimeBackup(self):
-        currentTime = datetime.datetime.now()
-        currentTimeDir = currentTime.strftime(BACKUP_DIR_FMT)
+        if self._backupTime is None:
+            self._backupTime = datetime.datetime.now()
+        currentTimeDir = self._backupTime.strftime(BACKUP_DIR_FMT)
         return currentTimeDir
 
     def pruneBefore(self, pruneDate):
