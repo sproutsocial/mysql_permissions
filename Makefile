@@ -5,6 +5,9 @@ CURRENT_VERSION := $(shell cat setup.cfg|grep -o -E "[0-9]*\.[0-9]*\.[0-9]*")
 flake_lint :
 	flake8
 
+drop_user:
+	mysql -h 192.168.33.10 -u grant_bot -phat -e "GRANT USAGE ON *.* TO 'int_test_user'@'%';DROP USER 'int_test_user'@'%';"
+
 vagrant :
 	vagrant up
 

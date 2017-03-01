@@ -34,6 +34,12 @@ class MysqlBackupTool(object):
         self._backupPath = backupPath
         self._logPasswords = logPasswords
 
+    def setEchoOnly(self, echoOnly):
+        self._echoOnly = echoOnly
+
+    def setLogPasswords(self, logPasswords):
+        self._logPasswords = logPasswords
+
     def getBackupSQLFile(self, backupName, cluster, database, table=None):
         backupPath = os.path.join(self._backupPath, backupName, cluster)
         archive = os.path.join(backupPath, database + ".sql")
@@ -68,7 +74,7 @@ class MysqlBackupTool(object):
         dumpCmd = self.getDumpCmd(extraArgs, host, username, password, dbTable, dumpFile, True)
         dumpEcho = self.getDumpCmd(extraArgs, host, username, password, dbTable, dumpFile, self._logPasswords)
         if self._echoOnly is True:
-            print(dumpCmd)
+            print(dumpEcho)
         else:
             logger.info("running dump: %s", dumpEcho)
             if subprocess.call(dumpCmd, shell=True) != 0:
