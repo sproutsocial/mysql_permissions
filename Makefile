@@ -6,6 +6,7 @@ flake_lint :
 	flake8
 
 drop_user:
+	# This is the default ip of the vagrant box.  It just allows you to get the integration_test.py to return IS_CLEAN without rebuilding the box
 	mysql -h 192.168.33.10 -u grant_bot -phat -e "GRANT USAGE ON *.* TO 'int_test_user'@'%';DROP USER 'int_test_user'@'%';"
 
 vagrant :
