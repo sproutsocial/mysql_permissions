@@ -1,14 +1,19 @@
 import ldap_mysql_granter
 
-from pip.req import parse_requirements
 from setuptools import setup  # Always prefer setuptools over distutils
 from setuptools import find_packages
 from os import path
 
+
+def parse_requirements(filename):
+    """ load requirements from a pip requirements file """
+    lineiter = (line.strip() for line in open(filename))
+    return [line for line in lineiter if line and not line.startswith("#")]
+
+
 here = path.abspath(path.dirname(__file__))
 reqFile = path.join(here, "ldap_mysql_granter", "prod_requirements.txt")
-install_reqs = parse_requirements(reqFile, session=False)
-reqs = [str(ir.req) for ir in install_reqs]
+reqs = parse_requirements(reqFile)
 
 epList = ['email_tool=ldap_mysql_granter.email_tool:main',
           'ldap_query_tool=ldap_mysql_granter.ldap_query_tool:main',
