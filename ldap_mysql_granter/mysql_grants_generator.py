@@ -185,10 +185,12 @@ def grantAccess(autoGrantConfig, grantDict, echoOnly, logPasswords, destructive,
         for userAtHost in grantDict[cluster].keys():
             logger.debug("working on %s", userAtHost)
             userPart, hostPart = (x.strip("'") for x in userAtHost.split('@'))
+            mysqlUserAtHost = userAtHost
             if len(userPart) > 16:
                 originalUserName = userPart
                 userPart = originalUserName[:15]
-                logger.warn("Username %s is too long (limit is 16 characters), truncating to %s" % (originalUserName, userPart))
+                mysqlUserAtHost = userPart  + "@" + hostPart
+                logger.warn("Username %s is too long (limit is 16 characters), truncating to %s (%s)" % (originalUserName, userPart, mysqlUserAtHost))
             mysqlConn.beginTransaction()
             passwordHash = mysqlConn.getPasswordHash(userPart, hostPart)
             userExists = (passwordHash is not None)
@@ -209,11 +211,11 @@ def grantAccess(autoGrantConfig, grantDict, echoOnly, logPasswords, destructive,
                     privileges = grant['privileges']
                     grantDeltaDict = mysqlConn.getGrantDeltaDict(userAtHost, dbTable, privileges)
                     if 0 < len(grantDeltaDict['grants']):
-                        mysqlConn.queryGrant(userAtHost,
+                        mysqlConn.queryGrant(mysqlUserAtHost,
                                              grantDeltaDict['grants'],
                                              dbTable)
                     if 0 < len(grantDeltaDict['revokes']):
-                        mysqlConn.queryRevoke(userAtHost,
+                        mysqlConn.queryRevoke(mysqlUserAtHost,
                                               grantDeltaDict['revokes'],
                                               dbTable)
                         mysqlConn.queryFlushPrivileges()
