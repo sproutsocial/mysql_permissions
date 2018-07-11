@@ -185,6 +185,10 @@ def grantAccess(autoGrantConfig, grantDict, echoOnly, logPasswords, destructive,
         for userAtHost in grantDict[cluster].keys():
             logger.debug("working on %s", userAtHost)
             userPart, hostPart = (x.strip("'") for x in userAtHost.split('@'))
+            if len(userPart) > 16:
+                originalUserName = userPart
+                userPart = originalUserName[:15]
+                logger.warn("Username %s is too long (limit is 16 characters), truncating to %s" % (originalUserName, userPart))
             mysqlConn.beginTransaction()
             passwordHash = mysqlConn.getPasswordHash(userPart, hostPart)
             userExists = (passwordHash is not None)
