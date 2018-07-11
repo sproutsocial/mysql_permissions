@@ -74,6 +74,7 @@ def makeGroupDict(autoGrantConfig, ldapGroupDict):
                     for cn in cnList:
                         if cn not in groupDict and 'memberUid' in ldapGroupDict[key]:
                             # Iterate over these and find any longer than 16 characters and truncate them.
+                            # MySQL <= 5.6 has a maximum username length of 16.
                             memberUid = ldapGroupDict[key]['memberUid']
                             for i in range(0,len(memberUid)):
                                 member = memberUid[i]
@@ -113,14 +114,9 @@ def makeUserDict(autoGrantConfig, groupDict, userList=None):
                 reverseDict[user] |= set([group])
     # second pass to expand users with their @'hosts'
     for user in reverseDict.keys():
-
         for group in reverseDict[user]:
             hosts = autoGrantConfig.getHostsForGroup(group)
             for host in hosts:
-                mysqlUser = user
-                #if len(mysqlUser) > 16:
-                #    mysqlUser = user[:16]
-                #    logger.warning("LDAP Username " + user + "is longer than 16 characters, truncating to " + mysqlUser)
                 userKey = user + "@" + host
                 if userKey not in userDict:
                     if not autoGrantConfig.getMysqlUserFiltered(userKey):
@@ -197,12 +193,6 @@ def grantAccess(autoGrantConfig, grantDict, echoOnly, logPasswords, destructive,
         for userAtHost in grantDict[cluster].keys():
             logger.debug("working on %s", userAtHost)
             userPart, hostPart = (x.strip("'") for x in userAtHost.split('@'))
-            mysqlUserAtHost = userAtHost
-            #if len(userPart) > 16:
-            #    originalUserName = userPart
-            #    userPart = originalUserName[:16]
-            #    mysqlUserAtHost = userPart  + "@" + hostPart
-            #    logger.warn("Username %s is too long (limit is 16 characters), truncating to %s (%s)" % (originalUserName, userPart, mysqlUserAtHost))
             mysqlConn.beginTransaction()
             passwordHash = mysqlConn.getPasswordHash(userPart, hostPart)
             userExists = (passwordHash is not None)
@@ -223,11 +213,11 @@ def grantAccess(autoGrantConfig, grantDict, echoOnly, logPasswords, destructive,
                     privileges = grant['privileges']
                     grantDeltaDict = mysqlConn.getGrantDeltaDict(userAtHost, dbTable, privileges)
                     if 0 < len(grantDeltaDict['grants']):
-                        mysqlConn.queryGrant(mysqlUserAtHost,
+                        mysqlConn.queryGrant(userAtHost,
                                              grantDeltaDict['grants'],
                                              dbTable)
                     if 0 < len(grantDeltaDict['revokes']):
-                        mysqlConn.queryRevoke(mysqlUserAtHost,
+                        mysqlConn.queryRevoke(userAtHost,
                                               grantDeltaDict['revokes'],
                                               dbTable)
                         mysqlConn.queryFlushPrivileges()
