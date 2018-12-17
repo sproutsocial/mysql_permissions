@@ -76,7 +76,7 @@ def makeGroupDict(autoGrantConfig, ldapGroupDict):
                             # Iterate over these and find any longer than 16 characters and truncate them.
                             # MySQL <= 5.6 has a maximum username length of 16.
                             memberUid = ldapGroupDict[key]['memberUid']
-                            for i in range(0,len(memberUid)):
+                            for i in range(0, len(memberUid)):
                                 member = memberUid[i]
                                 if len(member) > 16:
                                     logger.warning("LDAP username %s is longer than 16 characters, truncating to %s", member, member[:16])
