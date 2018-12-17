@@ -5,4 +5,4 @@ mccabe==0.3
 MySQL-python==1.2.5
 python-ldap==2.4.19
 PyYAML==3.11
-requests==2.6.0
+requests==2.20.0
