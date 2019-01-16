@@ -1,4 +1,5 @@
 #!/bin/bash
+set -ex
 export LANGUAGE=en_US.UTF-8
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
@@ -24,7 +25,7 @@ apt-get install libldap2-dev -y > /dev/null
 apt-get install python-mysqldb -y > /dev/null
 apt-get install libsasl2-dev -y > /dev/null
 apt-get install python-pip -y > /dev/null
-pip install --upgrade pip > /dev/null
+pip install --upgrade pip > /dev/null 
 # install java8
 apt-get install software-properties-common python-software-properties -y > /dev/null # for add-apt-repository
 add-apt-repository ppa:webupd8team/java -y > /dev/null
@@ -35,6 +36,7 @@ debconf-set-selections <<< "debconf shared/accepted-oracle-license-v1-1 seen tru
 #ldap
 export DEBIAN_FRONTEND=noninteractive
 echo -e " \
+slapd    slapd/domain string nodomain
 slapd    slapd/internal/generated_adminpw    password   openstack
 slapd    slapd/password2    password    openstack
 slapd    slapd/internal/adminpw    password openstack
