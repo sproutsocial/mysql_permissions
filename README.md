@@ -37,10 +37,15 @@ python password_change_invite.py
 ### Ldap Integration Testing ###
 Download VirtualBox: https://www.virtualbox.org/wiki/Downloads
 Download vagrant: https://www.vagrantup.com/downloads.html
+
+```
 git clone git@github.com:sproutsocial/mysql_permissions.git
 cd mysql_permissions
 pip install -r requirements.txt
+export AG_GMAIL_USER=example@gmail.com
+export AG_GMAIL_PASS=mail_password
 make integration_test_interactive
+```
 -- Follow online prompts, check your email, download the attachment --
 python password_change_invite.py
 

@@ -127,7 +127,7 @@ class EmailTool(object):
         message = util.renderTemplate("password_change_invite.tmpl",
                                       templateArgDict)
         logger.info("Sent ChangePassInvite to [%s] for %s on %s with password %s",
-                    ', '.join(receipients), mysqlUser, ",".join(mysqlClusters), mysqlPass)
+                    receipients, mysqlUser, mysqlClusters, mysqlPass)
         self.sendMail(receipients, subject, message, attachPayloads)
 
     def sendAccessNotification(self, mysqlClusters, mysqlUserAtHost,
