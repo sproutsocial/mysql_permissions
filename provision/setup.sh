@@ -25,7 +25,7 @@ apt-get install libldap2-dev -y > /dev/null
 apt-get install python-mysqldb -y > /dev/null
 apt-get install libsasl2-dev -y > /dev/null
 apt-get install python-pip -y > /dev/null
-pip install --upgrade pip > /dev/null 
+pip install --upgrade pip > /dev/null
 # install java8
 apt-get install software-properties-common python-software-properties -y > /dev/null # for add-apt-repository
 add-apt-repository ppa:webupd8team/java -y > /dev/null
