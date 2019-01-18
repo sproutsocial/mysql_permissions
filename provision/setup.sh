@@ -1,4 +1,5 @@
 #!/bin/bash
+set -ex
 export LANGUAGE=en_US.UTF-8
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
@@ -35,6 +36,7 @@ debconf-set-selections <<< "debconf shared/accepted-oracle-license-v1-1 seen tru
 #ldap
 export DEBIAN_FRONTEND=noninteractive
 echo -e " \
+slapd    slapd/domain string nodomain
 slapd    slapd/internal/generated_adminpw    password   openstack
 slapd    slapd/password2    password    openstack
 slapd    slapd/internal/adminpw    password openstack

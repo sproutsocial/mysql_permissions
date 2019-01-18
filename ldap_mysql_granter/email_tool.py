@@ -45,12 +45,12 @@ class EmailTool(object):
                 receipients = [self._email]
             self.sendGmail(receipients, subject, message, attachPayloads)
 
-    def sendGmail(self, receipients, subject, message, attachPayloads):
+    def sendGmail(self, recipients, subject, message, attachPayloads):
         logger.info("sending through Gmail")
         msg = email.mime.Multipart.MIMEMultipart()
         msg['Subject'] = subject
         msg['From'] = self._email
-        msg['To'] = ", ".join(receipients)
+        msg['To'] = ", ".join(recipients)
         body = email.mime.Text.MIMEText(message)
         msg.attach(body)
         for f in attachPayloads:
@@ -64,7 +64,7 @@ class EmailTool(object):
         server.ehlo()
         server.starttls()
         server.login(self._email, self._password)
-        server.sendmail(self._email, receipients, msg.as_string())
+        server.sendmail(self._email, recipients, msg.as_string())
         server.quit()
 
     def sendAWSMail(self, receipients, subject, message,
@@ -127,7 +127,7 @@ class EmailTool(object):
         message = util.renderTemplate("password_change_invite.tmpl",
                                       templateArgDict)
         logger.info("Sent ChangePassInvite to [%s] for %s on %s with password %s",
-                    ', '.join(receipients), mysqlUser, ",".join(mysqlClusters), mysqlPass)
+                    receipients, mysqlUser, mysqlClusters, mysqlPass)
         self.sendMail(receipients, subject, message, attachPayloads)
 
     def sendAccessNotification(self, mysqlClusters, mysqlUserAtHost,

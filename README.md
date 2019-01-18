@@ -37,16 +37,25 @@ python password_change_invite.py
 ### Ldap Integration Testing ###
 Download VirtualBox: https://www.virtualbox.org/wiki/Downloads
 Download vagrant: https://www.vagrantup.com/downloads.html
+
+```
 git clone git@github.com:sproutsocial/mysql_permissions.git
 cd mysql_permissions
 pip install -r requirements.txt
+export AG_GMAIL_USER=example@gmail.com
+export AG_GMAIL_PASS=mail_password
 make integration_test_interactive
 -- Follow online prompts, check your email, download the attachment --
 python password_change_invite.py
+```
+
+If you want to test the Hastebin feature, set `hastebin_url` in `integration_test.yaml`.
+The password change information will then be uploaded to Hastebin and an email with the link dispatched.
 
 ### Configuration ###
 * you can configure the way the script runs:
 * check out the documentation about [auto_grant.yaml](ldap_mysql_granter/templates/auto_grant.yaml.tmpl)
+
 
 ### Limitations ###
 * Sending through gmail will not work if you have 2 factor authorization setup

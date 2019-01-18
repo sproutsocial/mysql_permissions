@@ -32,11 +32,11 @@ integration_test_non_interactive: vagrant
 	python integration_test.py --log-level=CRITICAL --test=IS_CLEAN
 
 integration_test_interactive : vagrant
-	python integration_test.py --log-level=CRITICAL --test=IS_CLEAN
-	python ldap_mysql_granter/mysql_grants_generator.py --log-level=CRITICAL --yaml-conf=./integration_test.yaml
-	python integration_test.py --log-level=CRITICAL --test=HAS_GRANTS
-	python ldap_mysql_granter/mysql_grants_generator.py --log-level=CRITICAL --yaml-conf=./integration_test.yaml --revert
-	python integration_test.py --log-level=CRITICAL --test=IS_CLEAN
+	python integration_test.py --log-level=INFO --test=IS_CLEAN
+	python ldap_mysql_granter/mysql_grants_generator.py --log-level=INFO --yaml-conf=./integration_test.yaml
+	python integration_test.py --log-level=INFO --test=HAS_GRANTS
+	python ldap_mysql_granter/mysql_grants_generator.py --log-level=INFO --yaml-conf=./integration_test.yaml --revert
+	python integration_test.py --log-level=INFO --test=IS_CLEAN
 
 integration_tests : vagrant integration_test_echo_only integration_test_non_interactive integration_test_interactive
 

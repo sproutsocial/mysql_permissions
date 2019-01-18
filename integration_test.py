@@ -27,7 +27,7 @@ def checkDbClean(cluster, mysqlUser, mysqlPass, userPart, hostPart,
                                                 LOG_PASSWORDS)
     userExists = queryTool.userExists(userPart, hostPart)
     # verify db is clean
-    assert (userExists is False), "db not clean run a vagrant destroy"
+    assert (userExists is False), "db not clean run vagrant ssh -c 'sudo /auto_grant/provision/cleanup_db.sh'"
 
 
 def checkUserHasGrants(cluster, mysqlUser, mysqlPass, userPart, hostPart,
